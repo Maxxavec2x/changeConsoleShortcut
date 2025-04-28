@@ -1,4 +1,5 @@
 ﻿using Il2CppScheduleOne.UI;
+using HarmonyLib;
 using MelonLoader;
 using UnityEngine;
 using ConsoleUI = Il2CppScheduleOne.UI.ConsoleUI;
@@ -17,13 +18,14 @@ public class Core : MelonMod
 
     public override void OnUpdate()
     {
-        // If user press F1
+        // Ouvre la console avec F1
         if (Input.GetKeyDown(customConsoleKey))
         {
             ToggleConsoleManually();
         }
     }
 
+   
     public void ToggleConsoleManually()
     {
         var console = UnityEngine.Object.FindObjectOfType<ConsoleUI>();
@@ -37,4 +39,20 @@ public class Core : MelonMod
             LoggerInstance.Warning("No instance of Console UI found");
         }
     }
+
+    [HarmonyPatch(typeof(ConsoleUI), nameof(ConsoleUI.Update))]
+    public class ConsoleUIPatch
+    {
+        static bool Prefix(ConsoleUI __instance)
+        {
+       
+            if (Input.GetKeyDown(KeyCode.BackQuote))
+            {
+                MelonLogger.Msg("Blocked original console key");
+                return false;
+            }
+            return true; 
+        }
+    }
+
 }
